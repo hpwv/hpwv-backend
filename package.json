@@ -1,0 +1,21 @@
+{
+  "name": "web-backend",
+  "version": "1.0.0",
+  "description": "Simple kafka consumer",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "kafka",
+    "consumer",
+    "traffic",
+    "simulation"
+  ],
+  "author": "Maximilian Büttner",
+  "license": "ISC",
+  "dependencies": {
+    "ip": "1.1.5",
+    "kafkajs": "1.15.0"
+  }
+}

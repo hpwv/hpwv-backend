@@ -1,0 +1,14 @@
+version: "2"
+services:
+  web:
+    image: buettner123/web:1.0.0
+    build:
+      context: .
+    volumes: #TODO: remove volume, dev only
+      - ./src/:/usr/src/app/
+    networks:
+      - kafka-proxy
+
+networks:
+  kafka-proxy:
+    name: kafka
