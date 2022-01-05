@@ -1,7 +1,4 @@
-const ip = require('ip'),
-    {Kafka, logLevel} = require('kafkajs')
-
-const host = process.env.HOST_IP || ip.address()
+const {Kafka, logLevel} = require('kafkajs');
 
 const kafka = new Kafka({
     logLevel: logLevel.DEBUG,
@@ -9,7 +6,7 @@ const kafka = new Kafka({
     clientId: 'example-consumer',
 })
 
-const topic = 'my-test-topic'
+const topic = 'output-topic'
 const consumer = kafka.consumer({ groupId: 'test-group' })
 
 const run = async () => {

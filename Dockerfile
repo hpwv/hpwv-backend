@@ -8,8 +8,6 @@ RUN npm install
 # If you are building your code for production
 # RUN npm ci --only=production
 
-# Bundle app source
-# TODO: dockerignore
-COPY ./src/* .
+COPY ./src/* ./src/
 
-CMD [ "node", "index.js" ]
+CMD [ "node", "./src/index.js" ]
