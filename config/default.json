@@ -1,0 +1,18 @@
+{
+  "brokers": [
+    "kafka-broker-1-1:9092",
+    "kafka-broker-2-1:9092",
+    "kafka-broker-3-1:9092"
+  ],
+  "ssl": {
+    "cert": "../ssl/cert.pem",
+    "key": "../ssl/key.pem"
+  },
+  "app": {
+    "port": 443,
+    "log": {
+      "level": "info",
+      "prettyPrint": false
+    }
+  }
+}
