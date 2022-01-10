@@ -1,42 +1,46 @@
-const {Kafka, logLevel} = require('kafkajs');
+const express = require('express'),
+    cors = require('cors'),
+    {logger, expressLogger} = require('./log/logger'),
+    config = require('config'),
+    helmet = require('helmet'),
+    {handleError} = require('./helper/error'),
+    fs = require('fs'),
+    path = require('path'),
+    https = require('https'),
+    {initializeSocketIo, closeAllClientConnections} = require('./socket/handler');
 
-const kafka = new Kafka({
-    logLevel: logLevel.DEBUG,
-    brokers: ['kafka-broker-1-1:9092', 'kafka-broker-2-1:9092', 'kafka-broker-3-1:9092'],
-    clientId: 'example-consumer',
-})
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(expressLogger);
+app.use(helmet());
+app.use((err, req, res, next) => {
+    handleError(err, res);
+});
 
-const topic = 'output-topic'
-const consumer = kafka.consumer({ groupId: 'test-group' })
+const server = https.createServer({
+        key: fs.readFileSync(path.join(__dirname, config.ssl.key)),
+        cert: fs.readFileSync(path.join(__dirname, config.ssl.cert))
+    },
+    app
+).listen(config.app.port, () => {
+    logger.info(`Server running on port ${config.app.port}`);
+});
 
-const run = async () => {
-    await consumer.connect()
-    await consumer.subscribe({ topic, fromBeginning: true })
-    await consumer.run({
-        // eachBatch: async ({ batch }) => {
-        //   console.log(batch)
-        // },
-        eachMessage: async ({ topic, partition, message }) => {
-            const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`
-            console.log(`- ${prefix} ${message.key}#${message.value}`)
-        },
-    })
-}
+initializeSocketIo(server);
 
-run().catch(e => console.error(`[example/consumer] ${e.message}`, e))
-
-const errorTypes = ['unhandledRejection', 'uncaughtException']
-const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2']
+const errorTypes = ['unhandledRejection', 'uncaughtException'],
+    signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
 
 errorTypes.map(type => {
     process.on(type, async e => {
         try {
-            console.log(`process.on ${type}`)
-            console.error(e)
-            await consumer.disconnect()
-            process.exit(0)
+            logger.info(`process.on ${type}`);
+            logger.error(e);
+            await closeAllClientConnections();
+            process.exit(0);
         } catch (_) {
-            process.exit(1)
+            process.exit(1);
         }
     })
 })
@@ -44,9 +48,11 @@ errorTypes.map(type => {
 signalTraps.map(type => {
     process.once(type, async () => {
         try {
-            await consumer.disconnect()
+            await closeAllClientConnections();
         } finally {
-            process.kill(process.pid, type)
+            process.kill(process.pid, type);
         }
     })
 })
+
+module.exports = app;
