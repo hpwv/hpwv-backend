@@ -15,7 +15,18 @@
   "author": "Maximilian Büttner",
   "license": "ISC",
   "dependencies": {
-    "ip": "1.1.5",
-    "kafkajs": "1.15.0"
+    "kafkajs": "1.15.0",
+    "config": "^3.3.6",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "express-pino-logger": "^7.0.0",
+    "helmet": "^5.0.1",
+    "lodash": "^4.17.21",
+    "pino": "^7.6.2",
+    "nanoid": "^3.1.30",
+    "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "pino-pretty": "^7.3.0"
   }
 }
