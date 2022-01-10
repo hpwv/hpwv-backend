@@ -1,9 +1,12 @@
-version: "2"
 services:
-  web-backend:
-    image: buettner123/web-backend
+  web:
+    image: buettner123/hpwv-backend
     build:
       context: .
+    ports:
+      - "3117:3117"
+    environment:
+      - NODE_ENV=dev
     networks:
       - kafka-proxy
 
