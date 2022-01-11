@@ -12,6 +12,7 @@
     "port": 443,
     "log": {
       "level": "info",
+      "kafkaLevel": "info",
       "prettyPrint": false
     }
   }

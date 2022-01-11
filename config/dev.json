@@ -2,6 +2,7 @@
   "app": {
     "port": 3117,
     "log": {
+      "level": "debug",
       "prettyPrint": true
     }
   }
