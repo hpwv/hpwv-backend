@@ -70,9 +70,10 @@ class Client {
         await consumer.subscribe({topic: this.getTopicNameFromType(type)}); // , fromBeginning: true
         await consumer.run({
             eachMessage: async ({topic, partition, message}) => {
-                const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
-                logger.debug(`- ${prefix} ${message.key}#${message.value}`);
-                this.socket.send(JSON.parse(message.value));
+                this.socket.send({
+                    timestamp: message.timestamp,
+                    element: JSON.parse(message.value)
+                });
             },
         })
     }
@@ -85,12 +86,12 @@ class Client {
     }
 
     getTopicNameFromType(type) {
-        return 'output-topic';
+        return `${type}-updates`;
     }
 
     disconnect() {
         const keys = _.keys(this.consumers);
-        return keys.map(key => this.consumers[key]?.disconnect());
+        return Promise.all(keys.map(key => this.consumers[key]?.disconnect()));
     }
 }
 

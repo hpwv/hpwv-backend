@@ -14,8 +14,9 @@ const initializeSocketIo = (server) => {
         clients.add(client);
         logger.info(`Client with id ${client.id} connected.`);
 
-        socket.on('disconnect', (reason) => {
+        socket.on('disconnect', async (reason) => {
             logger.info(`Client with id ${client.id} disconnected, reason: ${reason}`);
+            await client.disconnect();
             clients.delete(client);
         });
     });
