@@ -1,7 +1,8 @@
 const {logger, toKafkaJsLogLevel, PinoLogCreator} = require('../log/logger'),
     {Kafka} = require('kafkajs'),
     config = require('config'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    {nanoid} = require('nanoid');
 
 class Client {
 
@@ -60,22 +61,24 @@ class Client {
         let consumer = this.consumers[type];
 
         if (!consumer) {
-            logger.info(`Creating new consumer for type ${type}`);
-            consumer = this.consumers[type] = this.kafka.consumer({groupId: this.id});
+            const consumerId = nanoid();
+            logger.info(`Creating new consumer for type ${type} with id ${consumerId}`);
+            consumer = this.consumers[type] = this.kafka.consumer({groupId: consumerId});
         } else {
             logger.info(`Already consuming for type ${type}. Doing nothing.`);
             return;
         }
         await consumer.connect();
-        await consumer.subscribe({topic: this.getTopicNameFromType(type)}); // , fromBeginning: true
+        await consumer.subscribe({topic: this.getTopicNameFromType(type)});
         await consumer.run({
-            eachMessage: async ({topic, partition, message}) => {
+            eachMessage: async ({message}) => {
                 this.socket.send({
                     timestamp: message.timestamp,
                     element: JSON.parse(message.value)
                 });
             },
-        })
+        });
+        logger.info(`Done subscribing to type ${type}.`);
     }
 
     async stopConsuming(type) {
@@ -90,8 +93,7 @@ class Client {
     }
 
     disconnect() {
-        const keys = _.keys(this.consumers);
-        return Promise.all(keys.map(key => this.consumers[key]?.disconnect()));
+        return Promise.all(_.values(this.consumers).map(it => it?.disconnect()));
     }
 }
 
