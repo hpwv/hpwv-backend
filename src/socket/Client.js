@@ -69,7 +69,7 @@ class Client {
             return;
         }
         await consumer.connect();
-        await consumer.subscribe({topic: this.getTopicNameFromType(type)});
+        await consumer.subscribe({topic: this.getTopicFromType(type)});
         await consumer.run({
             eachMessage: async ({message}) => {
                 this.socket.send({
@@ -88,7 +88,7 @@ class Client {
         this.consumers[type] = undefined;
     }
 
-    getTopicNameFromType(type) {
+    getTopicFromType(type) {
         return `${type}-updates`;
     }
 
